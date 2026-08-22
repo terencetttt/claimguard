@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function Logo({dark=false}:{dark?:boolean}) { return <Link href="/" className={`inline-flex items-center gap-3 font-semibold tracking-[-.02em] ${dark?"text-white":"text-[#08111F]"}`}><span className="relative grid size-8 place-items-center rounded-[10px] bg-[#4D8DFF] shadow-[0_8px_24px_rgba(77,141,255,.28)]"><span className="size-3.5 rotate-45 rounded-[3px] border-2 border-white"/></span><span className="text-[17px]">ClaimGuard</span></Link> }

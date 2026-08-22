@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {isDateWithinInclusivePeriod,normalizeDateOnly} from "../lib/policy-date.ts";
+const start="2026-01-01";const end="2026-12-31";
+test("date inside policy period is covered",()=>assert.equal(isDateWithinInclusivePeriod("2026-08-15",start,end),true));
+test("date before policy start is not covered",()=>assert.equal(isDateWithinInclusivePeriod("2025-12-31",start,end),false));
+test("date after policy end is not covered",()=>assert.equal(isDateWithinInclusivePeriod("2027-01-01",start,end),false));
+test("policy start boundary is inclusive",()=>assert.equal(isDateWithinInclusivePeriod(start,start,end),true));
+test("policy end boundary is inclusive",()=>assert.equal(isDateWithinInclusivePeriod(end,start,end),true));
+test("ISO timestamps normalize without timezone conversion",()=>assert.equal(normalizeDateOnly("2026-08-15T23:30:00-11:00"),"2026-08-15"));
+test("invalid or reversed periods fail closed",()=>{assert.equal(isDateWithinInclusivePeriod("15/08/2026",start,end),false);assert.equal(isDateWithinInclusivePeriod("2026-08-15",end,start),false)});

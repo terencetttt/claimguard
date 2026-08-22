@@ -1,0 +1,3 @@
+const DATE_ONLY=/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/;
+export function normalizeDateOnly(value:string):string|null {const match=DATE_ONLY.exec(value.trim());if(!match)return null;const year=Number(match[1]);const month=Number(match[2]);const day=Number(match[3]);const utc=new Date(Date.UTC(year,month-1,day));if(utc.getUTCFullYear()!==year||utc.getUTCMonth()!==month-1||utc.getUTCDate()!==day)return null;return `${match[1]}-${match[2]}-${match[3]}`;}
+export function isDateWithinInclusivePeriod(incidentValue:string,startValue:string,endValue:string):boolean {const incident=normalizeDateOnly(incidentValue);const start=normalizeDateOnly(startValue);const end=normalizeDateOnly(endValue);if(!incident||!start||!end||start>end)return false;return incident>=start&&incident<=end;}
