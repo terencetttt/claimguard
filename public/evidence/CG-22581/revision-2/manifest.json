@@ -13,7 +13,7 @@
       "source": "Claimant supplemental evidence",
       "filename": "repair-estimate.txt",
       "uri": "https://raw.githubusercontent.com/terencetttt/claimguard/main/public/evidence/CG-22581/revision-2/repair-estimate.txt",
-      "content_hash": "cd862d9ee02e53c0d8c0c1e4c043b86c60d43c9176b1765f890eea2586900164",
+      "content_hash": "e20837df6b7a53dcd677460fbe24643b89dae52420ebb454faae926e2bdcc533",
       "description": "Synthetic ClaimGuard test fixture documenting estimated repair items and an estimated repair total of NGN 1,700,000; not a real commercial quote."
     }
   ]
