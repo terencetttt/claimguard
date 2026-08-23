@@ -1,0 +1,20 @@
+{
+  "evidence": [
+    {
+      "evidence_type": "Damage photograph",
+      "source": "Claimant upload",
+      "filename": "front-passenger-side-collision-damage.png",
+      "uri": "https://raw.githubusercontent.com/terencetttt/claimguard/main/public/evidence/CG-22581/front-passenger-side-collision-damage.png",
+      "content_hash": "e40eb77633be8d7d0e094b2a170f94fbbdaa028f0d5b1d46c766a103155d9a84",
+      "description": "Photograph showing visible collision damage to the front passenger-side fender and door area of the insured vehicle."
+    },
+    {
+      "evidence_type": "Repair estimate",
+      "source": "Claimant supplemental evidence",
+      "filename": "repair-estimate.txt",
+      "uri": "https://raw.githubusercontent.com/terencetttt/claimguard/main/public/evidence/CG-22581/revision-2/repair-estimate.txt",
+      "content_hash": "cd862d9ee02e53c0d8c0c1e4c043b86c60d43c9176b1765f890eea2586900164",
+      "description": "Synthetic ClaimGuard test fixture documenting estimated repair items and an estimated repair total of NGN 1,700,000; not a real commercial quote."
+    }
+  ]
+}

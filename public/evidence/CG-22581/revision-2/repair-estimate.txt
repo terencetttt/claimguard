@@ -1,0 +1,18 @@
+﻿CLAIMGUARD TEST FIXTURE — NOT A REAL COMMERCIAL QUOTE
+
+Claim ID: CG-22581
+Vehicle: 2022 Toyota Camry - LND 482 GT
+Incident: Front passenger-side collision damage
+Assessment date: 2026-08-23
+
+Estimated repair items:
+- Front passenger-side fender repair/replacement
+- Front passenger door repair and alignment
+- Paint preparation and refinishing
+- Labour and body alignment
+
+Estimated repair total: NGN 1,700,000
+
+Purpose:
+Synthetic evidence fixture created solely to test ClaimGuard evidence revision,
+hash verification, validator retrieval, and re-adjudication logic.
