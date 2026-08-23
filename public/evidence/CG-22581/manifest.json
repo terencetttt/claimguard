@@ -1,0 +1,12 @@
+{
+  "evidence": [
+    {
+      "evidence_type": "Damage photograph",
+      "source": "Claimant upload",
+      "filename": "front-passenger-side-collision-damage.png",
+      "uri": "https://raw.githubusercontent.com/terencetttt/claimguard/main/public/evidence/CG-22581/front-passenger-side-collision-damage.png",
+      "content_hash": "e40eb77633be8d7d0e094b2a170f94fbbdaa028f0d5b1d46c766a103155d9a84",
+      "description": "Photograph showing visible collision damage to the front passenger-side fender and door area of the insured vehicle."
+    }
+  ]
+}
