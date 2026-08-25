@@ -34,6 +34,7 @@ export type ClaimDraft = {
   policy: {
     policyNumber: string;
     insurer: string;
+    insurerWallet: string;
     coverageType: string;
     policyStartDate: string;
     policyEndDate: string;
@@ -78,7 +79,7 @@ export function createClaimDraft(walletAddress: string | null): ClaimDraft {
     incident: {
       incidentType: "Collision",
       incidentDate: "2026-08-12",
-      location: "Lekki–Epe Expressway, Lagos",
+      location: "Lekkiâ€“Epe Expressway, Lagos",
       vehicleRegistration: "LND 482 GT",
       description: "At approximately 08:40, the insured vehicle was struck on the front passenger side while proceeding through the Admiralty Way junction. The other vehicle entered the junction against the traffic signal. The vehicle was moved to a safe position and the incident was reported to the police.",
       thirdPartyInvolved: "Yes",
@@ -86,12 +87,13 @@ export function createClaimDraft(walletAddress: string | null): ClaimDraft {
     policy: {
       policyNumber: "CGM-883029",
       insurer: "Anchor Mutual Insurance",
+      insurerWallet: "",
       coverageType: "Comprehensive Motor",
       policyStartDate: "2026-03-18",
       policyEndDate: "2027-03-18",
       coverageLimit: 5_000_000,
       deductible: 150_000,
-      insuredAsset: "2022 Toyota Camry · LND 482 GT",
+      insuredAsset: "2022 Toyota Camry Â· LND 482 GT",
     },
     financialLoss: {
       repairEstimate: 1_700_000,
