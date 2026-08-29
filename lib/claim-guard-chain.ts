@@ -238,7 +238,7 @@ async function waitForClaimToAppear(
 ) {
   let lastError: unknown = null;
 
-  for (let attempt = 0; attempt < 8; attempt += 1) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
     try {
       const claim = await getOnchainClaimSummary(client, claimId);
 
@@ -322,5 +322,191 @@ export async function submitClaimToBradbury(
     claimantWallet,
   );
 
+  return transactionHash;
+}
+function validEvidenceManifestUrl(value: string) {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+async function waitForEvidenceUpdate(
+  client: GenLayerClient,
+  claimId: string,
+  previousRevision: number,
+  manifestUrl: string,
+  manifestSha256: string,
+) {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      const evidence = await getOnchainEvidenceReference(
+        client,
+        claimId,
+      );
+
+      if (
+        evidence.evidence_revision > previousRevision &&
+        evidence.evidence_manifest_uri === manifestUrl &&
+        evidence.evidence_manifest_hash.toLowerCase() ===
+          manifestSha256.toLowerCase()
+      ) {
+        return evidence;
+      }
+    } catch (caught) {
+      lastError = caught;
+    }
+
+    await new Promise((resolve) =>
+      window.setTimeout(resolve, 3000),
+    );
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(
+        "The evidence transaction was submitted, but ClaimGuard could not confirm the updated evidence on Bradbury.",
+      );
+}
+
+export async function updateEvidenceOnBradbury(
+  client: GenLayerClient,
+  claimId: string,
+  manifestUrl: string,
+  manifestSha256: string,
+): Promise<`0x${string}`> {
+  if (!claimId.trim()) {
+    throw new Error("Claim ID is required.");
+  }
+
+  if (!validEvidenceManifestUrl(manifestUrl)) {
+    throw new Error(
+      "Evidence manifest must use a validator-accessible HTTPS URL.",
+    );
+  }
+
+  if (!/^[a-fA-F0-9]{64}$/.test(manifestSha256)) {
+    throw new Error(
+      "Evidence manifest hash must be a SHA-256 hex digest.",
+    );
+  }
+
+  const before = await getOnchainEvidenceReference(
+    client,
+    claimId,
+  );
+
+  const transactionHash = (await client.writeContract({
+    address: CLAIM_GUARD_CONTRACT,
+    functionName: "update_evidence",
+    args: [
+      claimId,
+      manifestUrl,
+      manifestSha256.toLowerCase(),
+    ],
+    value: BigInt(0),
+  })) as unknown as `0x${string}`;
+
+  await waitForEvidenceUpdate(
+    client,
+    claimId,
+    before.evidence_revision,
+    manifestUrl,
+    manifestSha256,
+  );
+
+  return transactionHash;
+}
+
+const ADJUDICATED_WORKFLOW_STATUSES = new Set([
+  "Approved",
+  "Partially Approved",
+  "Rejected",
+  "More Evidence Required",
+]);
+
+async function waitForAdjudicationResult(
+  client: GenLayerClient,
+  claimId: string,
+  previousWorkflowStatus: string,
+  previousEvidenceChanged: boolean,
+) {
+  let lastError: unknown = null;
+
+  /*
+   * GenLayer consensus can take materially longer than
+   * an ordinary EVM transaction, so allow up to 3 minutes.
+   */
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    try {
+      const claim = await getOnchainClaim(
+        client,
+        claimId,
+      );
+
+      const reachedDecisionState =
+        ADJUDICATED_WORKFLOW_STATUSES.has(
+          claim.workflow_status,
+        );
+
+      const stateChanged =
+        claim.workflow_status !== previousWorkflowStatus ||
+        claim.evidence_changed !== previousEvidenceChanged ||
+        claim.finalized ||
+        !!claim.final_decision;
+
+      if (reachedDecisionState && stateChanged) {
+        return claim;
+      }
+    } catch (caught) {
+      lastError = caught;
+    }
+
+    await new Promise((resolve) =>
+      window.setTimeout(resolve, 3000),
+    );
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(
+        "The adjudication transaction was submitted, but ClaimGuard could not confirm a validator decision on Bradbury within three minutes.",
+      );
+}
+
+export async function adjudicateClaimOnBradbury(
+  client: GenLayerClient,
+  claimId: string,
+): Promise<`0x${string}`> {
+  if (!claimId.trim()) {
+    throw new Error("Claim ID is required.");
+  }
+
+  const before = await getOnchainClaim(
+    client,
+    claimId,
+  );
+
+  if (before.finalized) {
+    throw new Error(
+      "This claim has already been finalized.",
+    );
+  }
+
+  const transactionHash = (await client.writeContract({
+    address: CLAIM_GUARD_CONTRACT,
+    functionName: "adjudicate_claim",
+    args: [claimId],
+    value: BigInt(0),
+  })) as unknown as `0x${string}`;
+
+  /*
+   * GenLayer consensus can continue well after the wallet
+   * transaction is accepted. Return the transaction hash
+   * immediately and let the UI track final contract state.
+   */
   return transactionHash;
 }

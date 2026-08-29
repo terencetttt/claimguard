@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import {
@@ -12,6 +12,8 @@ import {
 
 import { AppShell } from "@/components/app-shell";
 import { useWallet } from "@/components/wallet-provider";
+import { OnchainEvidenceUploader } from "@/components/onchain-evidence-uploader";
+import { OnchainAdjudicationPanel } from "@/components/onchain-adjudication-panel";
 import {
   CLAIM_GUARD_CONTRACT,
   getOnchainClaim,
@@ -399,6 +401,12 @@ export function OnchainClaimDetail({ id }: { id: string }) {
           </div>
 
           <div className="space-y-5">
+            <OnchainEvidenceUploader
+              claim={claim}
+              onUpdated={() =>
+                setReloadKey((value) => value + 1)
+              }
+            />
             <section className="panel overflow-hidden">
               <div className="border-b border-[#E1E7EF] px-6 py-5">
                 <div className="flex items-center gap-2">
@@ -442,6 +450,13 @@ export function OnchainClaimDetail({ id }: { id: string }) {
                 </a>
               </div>
             </section>
+
+            <OnchainAdjudicationPanel
+              claim={claim}
+              onUpdated={() =>
+                setReloadKey((value) => value + 1)
+              }
+            />
 
             <section className="panel p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">

@@ -28,6 +28,7 @@ type WalletContextValue = {
   openModal: () => void;
   closeModal: () => void;
   switchNetwork: () => Promise<void>;
+  signMessage: (message: string) => Promise<`0x${string}`>;
 };
 
 const WalletContext = createContext<WalletContextValue | null>(null);
@@ -216,6 +217,36 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }, [persistProvider, publishRevalidation]);
 
+  const signMessage = useCallback(
+    async (message: string): Promise<`0x${string}`> => {
+      if (!selected || !address) {
+        throw new Error("Connect your wallet before signing.");
+      }
+
+      const bytes = new TextEncoder().encode(message);
+
+      const messageHex =
+        `0x${Array.from(bytes)
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("")}`;
+
+      const signature = await selected.provider.request({
+        method: "personal_sign",
+        params: [messageHex, address],
+      });
+
+      if (
+        typeof signature !== "string" ||
+        !/^0x[0-9a-fA-F]{130}$/.test(signature)
+      ) {
+        throw new Error("The wallet returned an invalid signature.");
+      }
+
+      return signature as `0x${string}`;
+    },
+    [address, selected],
+  );
+
   const switchNetwork = useCallback(async () => {
     if (!selected) return;
     setConnecting(true);
@@ -236,11 +267,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<WalletContextValue>(() => ({
     address, chainId, client, error, isConnecting, isModalOpen,
     isOnBradbury: chainId === BRADBURY_CHAIN_ID,
-    providers, connect,
+    providers, connect, signMessage,
     openModal: () => { setError(null); setModalOpen(true); },
     closeModal: () => { if (!isConnecting) setModalOpen(false); },
     switchNetwork,
-  }), [address, chainId, client, connect, error, isConnecting, isModalOpen, providers, switchNetwork]);
+  }), [address, chainId, client, connect, error, isConnecting, isModalOpen, providers, signMessage, switchNetwork]);
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
