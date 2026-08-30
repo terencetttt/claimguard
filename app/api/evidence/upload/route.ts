@@ -1,4 +1,4 @@
-﻿import { put } from "@vercel/blob";
+import { put } from "@vercel/blob";
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 
@@ -6,7 +6,8 @@ import { verifyEvidenceAuthorization } from "@/lib/evidence-auth-server";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 5_000_000;
+const SUPPORTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".txt", ".md", ".json", ".csv"];
 
 function safeSegment(value: string) {
   return value
@@ -76,6 +77,11 @@ export async function POST(request: Request) {
     const pathClaimId = safeSegment(claimId);
     const filename = safeSegment(file.name);
 
+    const lowerFilename = file.name.toLowerCase();
+    if (!SUPPORTED_EXTENSIONS.some((ext) => lowerFilename.endsWith(ext))) {
+      return NextResponse.json({ error: "Unsupported evidence format. Use PNG, JPG, JPEG, WEBP, TXT, MD, JSON, or CSV." }, { status: 415 });
+    }
+
     if (!pathClaimId || !filename) {
       return NextResponse.json(
         { error: "Invalid claim ID or filename." },
@@ -92,7 +98,7 @@ export async function POST(request: Request) {
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "Evidence files are limited to 10 MB." },
+        { error: "Evidence files are limited to 5,000,000 bytes." },
         { status: 413 },
       );
     }

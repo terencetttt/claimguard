@@ -1,8 +1,7 @@
 import { createClient } from "genlayer-js";
 import { CalldataAddress } from "genlayer-js/types";
 
-export const CLAIM_GUARD_CONTRACT =
-  "0xD45a74b411536b8E5C80c7213482BFeECE3300ee" as const;
+export const CLAIM_GUARD_CONTRACT = "0x8C42B4c434F0b142a1b5975c4a29D298c6442168" as const;
 
 type GenLayerClient = ReturnType<typeof createClient>;
 

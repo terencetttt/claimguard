@@ -96,6 +96,7 @@ def submit(
     policy_end="2026-12-31",
     manifest_uri=MANIFEST_URI,
     manifest_hash=MANIFEST_HASH,
+    requested_amount=1_700_000,
 ):
     from genlayer import Address
 
@@ -109,7 +110,7 @@ def submit(
         policy_end,
         "Collision damaged the insured vehicle's front bodywork.",
         "2024 Toyota Corolla",
-        1_700_000,
+        requested_amount,
         1_700_000,
         150_000,
         5_000_000,
@@ -407,6 +408,47 @@ def test_verified_text_content_not_description_is_supplied_to_evaluator(direct_v
     assert TEXT_BYTES.decode() in observed["prompt"]
     assert observed["images"] == []
 
+
+
+@pytest.mark.parametrize(
+    "recommendation,supported_loss",
+    [
+        ("APPROVE", 1_700_000),
+        ("PARTIAL_APPROVAL", 1_000_000),
+    ],
+)
+def test_positive_approval_never_exceeds_requested_amount(
+    direct_vm,
+    direct_deploy,
+    direct_owner,
+    direct_alice,
+    direct_bob,
+    recommendation,
+    supported_loss,
+):
+    contract = deploy(direct_vm, direct_deploy, direct_owner, direct_bob)
+    submit(
+        contract,
+        direct_vm,
+        direct_alice,
+        direct_bob,
+        requested_amount=500_000,
+    )
+    claim_before = contract.get_claim("CG-TEST")
+    assert claim_before["maximum_payable"] == 1_550_000
+    assert claim_before["requested_amount"] == 500_000
+
+    adjudicate(
+        contract,
+        direct_vm,
+        direct_bob,
+        evaluation(recommendation, supported_loss=supported_loss),
+    )
+
+    claim = contract.get_claim("CG-TEST")
+    assert claim["approved_amount"] == 500_000
+    assert claim["approved_amount"] <= claim["requested_amount"]
+    assert claim["approved_amount"] <= claim["maximum_payable"]
 
 def test_source_uses_real_independent_genlayer_consensus_and_pinned_runner():
     source = Path(CONTRACT).read_text(encoding="utf-8")

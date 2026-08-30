@@ -452,6 +452,7 @@ CLAIM_CONTEXT:
     def _apply_evaluation(self, record: dict, evaluation: dict) -> None:
         recommendation = evaluation["recommendation"]
         maximum_payable = record["maximum_payable"]
+        settlement_cap = min(maximum_payable, record["requested_amount"])
         if recommendation in ("APPROVE", "PARTIAL_APPROVAL") and not record[
             "policy_active_on_incident_date"
         ]:
@@ -465,12 +466,12 @@ CLAIM_CONTEXT:
                 ERROR_LLM + " approval does not support the documented loss"
             )
         if recommendation == "APPROVE":
-            approved_amount = maximum_payable
+            approved_amount = settlement_cap
             status = "Approved"
             finalized = True
         elif recommendation == "PARTIAL_APPROVAL":
             approved_amount = min(
-                evaluation["supported_loss_amount"], maximum_payable
+                evaluation["supported_loss_amount"], settlement_cap
             )
             if approved_amount <= 0:
                 raise gl.vm.UserError(ERROR_LLM + " partial approval must support a positive loss")

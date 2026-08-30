@@ -14,7 +14,13 @@ import {
 export const runtime = "nodejs";
 
 const SHA256_PATTERN = /^[a-fA-F0-9]{64}$/;
-const MAX_EVIDENCE_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_EVIDENCE_FILE_SIZE = 5_000_000;
+const MAX_EVIDENCE_ITEMS = 10;
+const MAX_IMAGE_ITEMS = 2;
+const MAX_TOTAL_TEXT_BYTES = 200_000;
+const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+const TEXT_EXTENSIONS = [".txt", ".md", ".json", ".csv"];
+const SUPPORTED_EXTENSIONS = [...IMAGE_EXTENSIONS, ...TEXT_EXTENSIONS];
 
 function safeSegment(value: string) {
   return value
@@ -148,7 +154,7 @@ async function verifyEvidenceFile(
     contentLength > MAX_EVIDENCE_FILE_SIZE
   ) {
     throw new Error(
-      `Evidence file exceeds 10 MB: ${item.filename}`,
+      `Evidence file exceeds 5,000,000 bytes: ${item.filename}`,
     );
   }
 
@@ -158,7 +164,7 @@ async function verifyEvidenceFile(
 
   if (bytes.length > MAX_EVIDENCE_FILE_SIZE) {
     throw new Error(
-      `Evidence file exceeds 10 MB: ${item.filename}`,
+      `Evidence file exceeds 5,000,000 bytes: ${item.filename}`,
     );
   }
 
@@ -171,6 +177,8 @@ async function verifyEvidenceFile(
       `SHA-256 mismatch for evidence file: ${item.filename}`,
     );
   }
+
+  return bytes.length;
 }
 
 export async function POST(request: Request) {
@@ -260,11 +268,11 @@ export async function POST(request: Request) {
       );
     }
 
-    if (body.evidence.length > 20) {
+    if (body.evidence.length > MAX_EVIDENCE_ITEMS) {
       return NextResponse.json(
         {
           error:
-            "A manifest is limited to 20 evidence records.",
+            "A manifest is limited to 10 evidence records.",
         },
         { status: 400 },
       );
@@ -273,12 +281,67 @@ export async function POST(request: Request) {
     const evidence =
       body.evidence.map(validateItem);
 
+    const unsupported = evidence.find((item) => {
+      const filename = item.filename.toLowerCase();
+      return !SUPPORTED_EXTENSIONS.some((ext) =>
+        filename.endsWith(ext),
+      );
+    });
+
+    if (unsupported) {
+      return NextResponse.json(
+        {
+          error:
+            "Unsupported evidence format. Use PNG, JPG, JPEG, WEBP, TXT, MD, JSON, or CSV.",
+        },
+        { status: 415 },
+      );
+    }
+
+    const imageCount = evidence.filter((item) => {
+      const filename = item.filename.toLowerCase();
+      return IMAGE_EXTENSIONS.some((ext) =>
+        filename.endsWith(ext),
+      );
+    }).length;
+
+    if (imageCount > MAX_IMAGE_ITEMS) {
+      return NextResponse.json(
+        {
+          error:
+            "A manifest is limited to 2 image evidence records.",
+        },
+        { status: 400 },
+      );
+    }
+
     /*
      * Re-fetch every public evidence object and
      * verify the exact bytes against its hash.
      */
+    let totalTextBytes = 0;
+
     for (const item of evidence) {
-      await verifyEvidenceFile(item);
+      const itemBytes = await verifyEvidenceFile(item);
+      const filename = item.filename.toLowerCase();
+
+      if (
+        TEXT_EXTENSIONS.some((ext) =>
+          filename.endsWith(ext),
+        )
+      ) {
+        totalTextBytes += itemBytes;
+
+        if (totalTextBytes > MAX_TOTAL_TEXT_BYTES) {
+          return NextResponse.json(
+            {
+              error:
+                "Combined text evidence is limited to 200,000 bytes.",
+            },
+            { status: 413 },
+          );
+        }
+      }
     }
 
     /*
