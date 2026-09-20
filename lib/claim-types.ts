@@ -77,30 +77,30 @@ export function createClaimDraft(walletAddress: string | null): ClaimDraft {
     updatedAt: now,
     walletAddress,
     incident: {
-      incidentType: "Collision",
-      incidentDate: "2026-08-12",
-      location: "Lekki–Epe Expressway, Lagos",
-      vehicleRegistration: "LND 482 GT",
-      description: "At approximately 08:40, the insured vehicle was struck on the front passenger side while proceeding through the Admiralty Way junction. The other vehicle entered the junction against the traffic signal. The vehicle was moved to a safe position and the incident was reported to the police.",
-      thirdPartyInvolved: "Yes",
+      incidentType: "",
+      incidentDate: "",
+      location: "",
+      vehicleRegistration: "",
+      description: "",
+      thirdPartyInvolved: "Not sure",
     },
     policy: {
-      policyNumber: "CGM-883029",
-      insurer: "Anchor Mutual Insurance",
+      policyNumber: "",
+      insurer: "",
       insurerWallet: "",
-      coverageType: "Comprehensive Motor",
-      policyStartDate: "2026-03-18",
-      policyEndDate: "2027-03-18",
-      coverageLimit: 5_000_000,
-      deductible: 150_000,
-      insuredAsset: "2022 Toyota Camry Â· LND 482 GT",
+      coverageType: "",
+      policyStartDate: "",
+      policyEndDate: "",
+      coverageLimit: 0,
+      deductible: 0,
+      insuredAsset: "",
     },
     financialLoss: {
-      repairEstimate: 1_700_000,
+      repairEstimate: 0,
       propertyDamage: 0,
       medicalExpenses: 0,
       otherExpenses: 0,
-      requestedAmount: 1_850_000,
+      requestedAmount: 0,
       currency: "NGN",
     },
     evidence: [],
@@ -112,4 +112,8 @@ export function documentedLoss(draft: ClaimDraft) {
   const loss = draft.financialLoss;
   return loss.repairEstimate + loss.propertyDamage + loss.medicalExpenses + loss.otherExpenses;
 }
+
+
+
+
 
