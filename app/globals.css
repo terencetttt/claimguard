@@ -6,3 +6,11 @@
 .btn-primary{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;border-radius:11px;background:#4D8DFF;padding:11px 18px;font-size:13px;font-weight:650;color:white;box-shadow:0 8px 20px rgba(77,141,255,.2)}.btn-primary:hover{background:#397CEC;transform:translateY(-1px);box-shadow:0 10px 24px rgba(77,141,255,.25)}.btn-secondary{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;border:1px solid #D3DDE8;border-radius:11px;background:white;padding:10px 16px;font-size:13px;font-weight:600;color:#26354A}.btn-secondary:hover{border-color:#B6C4D4;background:#F8FAFC}
 @keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.page-reveal{animation:reveal .45s cubic-bezier(.2,.7,.2,1) both}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 @media(min-width:1536px){.\32xl\:grid-cols-\[290px_minmax\(0\,1fr\)\]{grid-template-columns:280px minmax(0,1fr)}}
+
+/* Compact intake fields without changing other workspaces. */
+.claim-intake .field{min-height:44px;border-radius:10px;padding:10px 12px;font-size:13px;line-height:22px}
+.claim-intake input.field,.claim-intake select.field{height:44px}
+.claim-intake .label{margin-bottom:6px;color:#344359;font-size:12px;font-weight:600}
+.claim-intake .field::placeholder{color:#78879A}
+.claim-intake .field[type=file]{height:auto;min-height:44px;font-size:12px}
+.claim-intake .btn-primary,.claim-intake .btn-secondary{padding-top:9px;padding-bottom:9px}
