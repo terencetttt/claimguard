@@ -1,4 +1,4 @@
-export type DraftStatus = "Draft" | "Submitted";
+﻿export type DraftStatus = "Draft" | "Submitted";
 export type ThirdPartyInvolvement = "Yes" | "No" | "Not sure" | "";
 export type EvidenceType = "Police report" | "Damage photographs" | "Repair estimate" | "Medical document" | "Policy document" | "Invoice / receipt" | "Witness statement" | "Other";
 export type EvidenceVerificationStatus = "Uploaded" | "Unverified" | "Ready for review";
@@ -93,7 +93,7 @@ export function createClaimDraft(walletAddress: string | null): ClaimDraft {
       policyEndDate: "2027-03-18",
       coverageLimit: 5_000_000,
       deductible: 150_000,
-      insuredAsset: "2022 Toyota Camry · LND 482 GT",
+      insuredAsset: "2022 Toyota Camry Â· LND 482 GT",
     },
     financialLoss: {
       repairEstimate: 1_700_000,
@@ -112,3 +112,4 @@ export function documentedLoss(draft: ClaimDraft) {
   const loss = draft.financialLoss;
   return loss.repairEstimate + loss.propertyDamage + loss.medicalExpenses + loss.otherExpenses;
 }
+

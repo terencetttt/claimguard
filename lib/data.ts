@@ -1,12 +1,12 @@
-export type ClaimStatus = "Submitted" | "Evidence Review" | "Coverage Analysis" | "Decision Ready" | "Awaiting Documents" | "Approved" | "Partially Approved" | "More Evidence Required" | "Rejected" | "Investigation";
+﻿export type ClaimStatus = "Submitted" | "Evidence Review" | "Coverage Analysis" | "Decision Ready" | "Awaiting Documents" | "Approved" | "Partially Approved" | "More Evidence Required" | "Rejected" | "Investigation";
 export type Claim = { id:string; claimant:string; coverage:string; amount:number; evidence:string; risk:string; status:ClaimStatus; activity:string };
 export const naira = (value:number) => new Intl.NumberFormat("en-NG", { style:"currency", currency:"NGN", maximumFractionDigits:0 }).format(value);
 export const claims:Claim[] = [
-  {id:"CG-20481",claimant:"Chinedu Okafor",coverage:"Comprehensive Motor",amount:1850000,evidence:"Strong · 87%",risk:"Low",status:"Decision Ready",activity:"18 min ago"},
-  {id:"CG-20463",claimant:"Amara Nwosu",coverage:"Motor Third Party",amount:640000,evidence:"Partial · 62%",risk:"Medium",status:"Awaiting Documents",activity:"1 hr ago"},
-  {id:"CG-20439",claimant:"David Mensah",coverage:"Comprehensive Motor",amount:3200000,evidence:"Strong · 91%",risk:"Low",status:"Evidence Review",activity:"2 hrs ago"},
-  {id:"CG-20422",claimant:"Fatima Bello",coverage:"Comprehensive Motor",amount:980000,evidence:"Verified · 94%",risk:"Low",status:"Approved",activity:"Yesterday"},
-  {id:"CG-20405",claimant:"Tunde Adebayo",coverage:"Fleet Motor",amount:4600000,evidence:"Conflicting · 48%",risk:"Elevated",status:"Investigation",activity:"Yesterday"},
+  {id:"CG-20481",claimant:"Chinedu Okafor",coverage:"Comprehensive Motor",amount:1850000,evidence:"Strong Â· 87%",risk:"Low",status:"Decision Ready",activity:"18 min ago"},
+  {id:"CG-20463",claimant:"Amara Nwosu",coverage:"Motor Third Party",amount:640000,evidence:"Partial Â· 62%",risk:"Medium",status:"Awaiting Documents",activity:"1 hr ago"},
+  {id:"CG-20439",claimant:"David Mensah",coverage:"Comprehensive Motor",amount:3200000,evidence:"Strong Â· 91%",risk:"Low",status:"Evidence Review",activity:"2 hrs ago"},
+  {id:"CG-20422",claimant:"Fatima Bello",coverage:"Comprehensive Motor",amount:980000,evidence:"Verified Â· 94%",risk:"Low",status:"Approved",activity:"Yesterday"},
+  {id:"CG-20405",claimant:"Tunde Adebayo",coverage:"Fleet Motor",amount:4600000,evidence:"Conflicting Â· 48%",risk:"Elevated",status:"Investigation",activity:"Yesterday"},
 ];
 export const timeline = [
   ["09:12","Claim created","Claimant submitted"], ["09:28","Incident photographs submitted","Claimant submitted"],
@@ -28,3 +28,4 @@ export const policies = [
   {number:"CGM-610773",holder:"Fatima Bello",coverage:"Comprehensive Motor",limit:4000000,deductible:100000,status:"Renewal due",expiry:"28 Aug 2026"},
   {number:"FLT-209401",holder:"Adebayo Logistics",coverage:"Fleet Motor",limit:25000000,deductible:500000,status:"Active",expiry:"14 May 2027"},
 ];
+
