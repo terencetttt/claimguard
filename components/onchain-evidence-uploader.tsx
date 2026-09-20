@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   FileUp,
   Loader2,
@@ -19,6 +19,8 @@ import {
   serializeEvidenceManifest,
   type EvidenceManifestItem,
 } from "@/lib/evidence-manifest";
+
+import { EVIDENCE_ACCEPT, EVIDENCE_LIMITS_HELP, preflightEvidenceAddition, validateEvidenceFile } from "@/lib/evidence-limits";
 
 type Props = {
   claim: OnchainClaim;
@@ -65,64 +67,6 @@ async function sha256Hex(
     .join("");
 }
 
-function isEvidenceManifestItem(
-  value: unknown,
-): value is EvidenceManifestItem {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const item = value as Record<string, unknown>;
-
-  return (
-    typeof item.evidence_type === "string" &&
-    typeof item.source === "string" &&
-    typeof item.filename === "string" &&
-    typeof item.uri === "string" &&
-    typeof item.content_hash === "string" &&
-    typeof item.description === "string"
-  );
-}
-
-async function loadPreviousEvidence(
-  claim: OnchainClaim,
-) {
-  if (
-    claim.evidence_revision <= 0 ||
-    !claim.evidence_manifest_uri
-  ) {
-    return [] as EvidenceManifestItem[];
-  }
-
-  const response = await fetch(
-    claim.evidence_manifest_uri,
-    {
-      cache: "no-store",
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      "Existing evidence manifest could not be loaded. ClaimGuard will not replace it with an incomplete revision.",
-    );
-  }
-
-  const body = (await response.json()) as {
-    evidence?: unknown;
-  };
-
-  if (
-    !Array.isArray(body.evidence) ||
-    !body.evidence.every(isEvidenceManifestItem)
-  ) {
-    throw new Error(
-      "Existing evidence manifest has an invalid structure.",
-    );
-  }
-
-  return body.evidence;
-}
-
 async function responseJson<T>(
   response: Response,
 ): Promise<T> {
@@ -166,6 +110,7 @@ export function OnchainEvidenceUploader({
 
   const [state, setState] = useState<
     | "idle"
+    | "validating"
     | "hashing"
     | "signing-file"
     | "uploading"
@@ -181,6 +126,7 @@ export function OnchainEvidenceUploader({
   const [success, setSuccess] =
     useState<string>("");
 
+  const submitting = useRef(false);
   const busy = state !== "idle";
 
   const claimantConnected =
@@ -189,6 +135,7 @@ export function OnchainEvidenceUploader({
       claim.claimant_wallet.toLowerCase();
 
   async function submitEvidence() {
+    if (submitting.current) return;
     if (!file) {
       setError("Choose an evidence file first.");
       return;
@@ -232,7 +179,10 @@ export function OnchainEvidenceUploader({
     setError("");
     setSuccess("");
 
+    submitting.current = true;
     try {
+      setState("validating");
+      const previousEvidence = await preflightEvidenceAddition(claim, file, sha256Hex);
       /*
        * STEP 1
        * Hash exact file bytes in the browser.
@@ -328,9 +278,6 @@ export function OnchainEvidenceUploader({
        * append the newly uploaded evidence.
        */
       setState("building-manifest");
-
-      const previousEvidence =
-        await loadPreviousEvidence(claim);
 
       const evidence: EvidenceManifestItem[] = [
         ...previousEvidence,
@@ -465,12 +412,15 @@ export function OnchainEvidenceUploader({
           : "Evidence update failed.",
       );
     } finally {
+      submitting.current = false;
       setState("idle");
     }
   }
 
   function stateLabel() {
     switch (state) {
+      case "validating":
+        return "Checking evidence limits...";
       case "hashing":
         return "Hashing evidence...";
       case "signing-file":
@@ -533,20 +483,30 @@ export function OnchainEvidenceUploader({
 
           <input
             type="file"
+            accept={EVIDENCE_ACCEPT}
             disabled={
               busy ||
               claim.finalized ||
               !claimantConnected
             }
-            onChange={(event) =>
-              setFile(
-                event.target.files?.[0] ??
-                  null,
-              )
-            }
+            onChange={(event) => {
+              const selected = event.target.files?.[0] ?? null;
+              setError("");
+              setSuccess("");
+              try {
+                if (selected) validateEvidenceFile(selected);
+                setFile(selected);
+              } catch (caught) {
+                setFile(null);
+                event.target.value = "";
+                setError(caught instanceof Error ? caught.message : "Invalid evidence file.");
+              }
+            }}
             className="field"
           />
         </label>
+
+        <p className="text-xs text-[#7B8899]">{EVIDENCE_LIMITS_HELP}</p>
 
         <label className="block">
           <span className="mb-2 block text-xs font-semibold text-[#44546A]">
