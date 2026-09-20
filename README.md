@@ -1,4 +1,4 @@
-# ClaimGuard
+﻿# ClaimGuard
 
 **Evidence-driven insurance claim adjudication powered by GenLayer Intelligent Contracts.**
 
@@ -9,7 +9,7 @@ ClaimGuard combines deterministic insurance rules with GenLayer validator reason
 - **App:** https://claimguard-nu.vercel.app
 - **GitHub:** https://github.com/terencetttt/claimguard
 - **Network:** GenLayer Bradbury Testnet
-- **Intelligent Contract:** `0xD45a74b411536b8E5C80c7213482BFeECE3300ee`
+- **Intelligent Contract:** `0x8C42B4c434F0b142a1b5975c4a29D298c6442168`
 - **Explorer:** https://explorer-bradbury.genlayer.com
 
 ## Why ClaimGuard Uses GenLayer
@@ -306,3 +306,4 @@ ClaimGuard is a prototype deployed on the **GenLayer Bradbury Testnet**.
 It is not an insurance company, insurer, broker, claims adjuster, or production financial service.
 
 Development evidence may include clearly labeled synthetic fixtures. Synthetic test evidence must never be represented as genuine insurance or commercial documentation.
+
